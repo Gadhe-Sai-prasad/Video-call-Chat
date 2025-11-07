@@ -1,0 +1,19 @@
+const mongoose = require("mongoose");
+const { Schema } = mongoose;
+
+
+const meetingSchema =  new  Schema({
+    uer_id:{type:String,required:true},
+    meetingCode:{
+        type:String,
+        required:true
+    },
+    date:{
+        type:Date,
+        default:Date.now,required:true
+
+    }
+
+})
+const Meeting = mongoose.model("Meeting",meetingSchema);
+ module.exports = {Meeting};
