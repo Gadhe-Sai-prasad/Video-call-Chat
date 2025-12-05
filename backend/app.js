@@ -16,13 +16,23 @@ app.set("PORT", process.env.PORT || 3000);
 app.use("/api/v1/users", userRoutes);
 
 const server = createServer(app);
+
 const io = connectToSocket(server);
 
-ConnectDb();
 
-server.listen(app.get("PORT"), () => {
-  console.log(`Listening on port ${app.get("PORT")}`);
-});
+ConnectDb()
+  .then(() => {
+    server.listen(app.get("PORT"), () => {
+      console.log("server is started");
+    });
+  })
+  .catch((err) => {
+    console.log(
+      "something went wrong unable to start server....." + err.message
+    );
+  });
+ 
+ 
 
    
   
