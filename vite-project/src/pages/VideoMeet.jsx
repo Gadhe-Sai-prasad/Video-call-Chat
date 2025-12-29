@@ -51,11 +51,6 @@ export default function VideoMeetComponent() {
     // }
 
 
-
-
-
-
-
     // let connections = useRef({}); general way for creating connections 
     // connections.current
   return (
