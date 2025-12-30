@@ -16,12 +16,10 @@ const connectToSocket = (server) => {
         connections[path] = [];
       }
       connections[path].push(socket.id);
-
       timeOnline[socket.id] = new Date();
     }); // first socket connected  client side listening -.on enter/join those emit is also accept-call
     socket.on("signal", (told, message) => {
       io.to(told).emit("signal".socket.id, message); //list of users present in rooms
-
       //   connections[path].forEach(ele => {
       //     io.to(ele)
       //   })
