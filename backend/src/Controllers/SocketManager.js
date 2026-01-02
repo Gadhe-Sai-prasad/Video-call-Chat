@@ -1,15 +1,12 @@
 const { Connection } = require("mongoose");
 const { Server } = require("socket.io");
-
 let connections = {}; //List of Connections
 let messages = {}; //
 let timeOnline = {};
-
 const connectToSocket = (server) => {
   const io = new Server(server); // create Socket.IO server using your HTTP server
   io.on("connection", (socket) => {
     // connection
-
     socket.on("join-call", (path) => {
       //Typically you’d use this to join a room (Socket.IO concept) so you can broadcast to everyone in that call:
       if (connections[path] === undefined) {
@@ -23,7 +20,6 @@ const connectToSocket = (server) => {
       //   connections[path].forEach(ele => {
       //     io.to(ele)
       //   })
-
       for (let a = 0; a < connections[path].length; i++) {
         io.to(connections[path][a]).emit(
           "user joined",
