@@ -4,10 +4,8 @@ import Landing from './pages/Landing'
 import Authentication from './pages/Authentication'
 import { AuthProvider } from './contexts/AuthContext'
 import VideoMeetComponent from './pages/VideoMeet'
-
 function App() {
   const [count, setCount] = useState(0)
-
   return (
     <>
        <Router>
@@ -22,5 +20,4 @@ function App() {
     </>
   )
 }
-
 export default App
