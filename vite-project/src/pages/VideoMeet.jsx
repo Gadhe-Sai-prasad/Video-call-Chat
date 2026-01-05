@@ -1,5 +1,10 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useRef } from 'react';
+import "../Styles/videoComponent.css"
+import TextField from "@mui/material/TextField";
+import {Button} from "@mui/material";
+
+
 
 const server_url ="http://local:3000";
 
@@ -40,7 +45,7 @@ export default function VideoMeetComponent() {
 
     let [askForUserName, setAskForUserName] = useState(true);
 
-    let [username,serUserName] = useState("");
+    let [username,setUserName] = useState("");
 
     const videoRef = useRef([]);
 
@@ -53,9 +58,79 @@ export default function VideoMeetComponent() {
 
     // let connections = useRef({}); general way for creating connections 
     // connections.current
+
+    const getPermissions = async() => {
+       try {
+        const videoPermission = await navigator.mediaDevices.getUserMedia({video:true}) // tincton permission 
+          if (videoPermission) {
+            setVideoAvailable(true);
+          }
+          else {
+             setVideoAvailable(false);
+          }
+
+           const audioPermission = await navigator.mediaDevices.getUserMedia({audio:true}) // tincton permission 
+          if (audioPermission) {
+            setAudioAvailable(true);
+          }
+          else {
+             setAudioAvailable(false);
+          }
+          if(navigator.mediaDevices.getDisplayMedia) {
+            setScreenAvailable(true) 
+          }
+          else{
+            setScreenAvailable(false);
+          }
+
+          if(videoAvailable || audioAvailable) {
+            const userMediaStream = await navigator.mediaDevices.getUserMedia({video:videoAvailable,audio:audioAvailable});
+
+            if(userMediaStream) {
+              window.localStream = userMediaStream;
+
+              if(localVideoRef.current) {
+                localVideoRef.current.srcObject =userMediaStream;        }
+            }
+          }
+       } catch (err) {
+        console.log(err);
+
+       }  
+    }
+    useEffect (()=> {
+          getPermissions();
+    },[])
+
+    let getUserMedia = () => {
+      if(video && videoAvailable) 
+
+    }
+    useEffect(()=> {
+      if(video !== undefined  && audio !== undefined) {
+        getUserMedia();
+      }
+    },[audio,video])
+
+    let getMedia = () => {
+      setVideo(videoAvailable);
+      setAudio(audioAvailable);
+      connectToSocketServer();
+    }
   return (
+     
     <div>
-        videomeet
+ 
+     {askForUserName === true ? 
+     <div>
+          <h2>Enter into Lobby </h2>
+          <TextField id="outlined-basic" label="username" value ={username} onChange={e => setUserName(e.target.value)} variant="outlined" />
+            <Button variant="contained">Connect</Button>
+          <div>
+            <video  ref = {localVideoRef} autoPlay muted></video>
+          </div>
+        </div> : <></>
+     }
     </div>
     // <div>
 
