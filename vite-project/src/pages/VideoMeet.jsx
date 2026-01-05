@@ -3,9 +3,6 @@ import { useRef } from 'react';
 import "../Styles/videoComponent.css"
 import TextField from "@mui/material/TextField";
 import {Button} from "@mui/material";
-
-
-
 const server_url ="http://local:3000";
 
 var connections = {}; 
