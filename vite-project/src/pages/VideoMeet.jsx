@@ -3,6 +3,8 @@ import { useRef } from 'react';
 import "../Styles/videoComponent.css"
 import TextField from "@mui/material/TextField";
 import {Button} from "@mui/material";
+import { connect } from 'mongoose';
+import { Connect } from 'vite';
 
 
 
@@ -101,10 +103,24 @@ export default function VideoMeetComponent() {
     useEffect (()=> {
           getPermissions();
     },[])
+  let getUserMediaSuccess = (stream) => {
 
-    let getUserMedia = () => {
-      if(video && videoAvailable) 
+  }
+    let getUserMedia = () => {                                            // If user video has  permission will proceed further 
+      if((video && videoAvailable) || (audio & audioAvailable) ) {
+        navigator.mediaDevices.getUserMedia({video:video,audio:audio}) 
+        .then( getUserMediaSuccess)  // it will only send whick is active in both audio and video 
+        .then((stream) =>{})
+        .catch((e) => console.log(e))
+      } else {
+        try {
+                let tracks = localVideoRef.current.srcObject.getTracks();
+                tracks.forEach(track => track.stop()) // if no permission then will stop all tracks
+        }
+        catch (e) {
 
+        }
+      }
     }
     useEffect(()=> {
       if(video !== undefined  && audio !== undefined) {
@@ -115,7 +131,12 @@ export default function VideoMeetComponent() {
     let getMedia = () => {
       setVideo(videoAvailable);
       setAudio(audioAvailable);
-      connectToSocketServer();
+       
+
+      let connect = () => {
+        setAskForUserName(false);
+        getMedia();
+      }
     }
   return (
      
@@ -125,7 +146,7 @@ export default function VideoMeetComponent() {
      <div>
           <h2>Enter into Lobby </h2>
           <TextField id="outlined-basic" label="username" value ={username} onChange={e => setUserName(e.target.value)} variant="outlined" />
-            <Button variant="contained">Connect</Button>
+            <Button variant="contained" onClick = {connect} >Connect</Button>
           <div>
             <video  ref = {localVideoRef} autoPlay muted></video>
           </div>
