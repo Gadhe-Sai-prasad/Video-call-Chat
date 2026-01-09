@@ -1,37 +1,52 @@
-const { Connection } = require("mongoose");
-const { Server } = require("socket.io");
-let connections = {}; //List of Connections
-let messages = {}; //
+import { Server } from "socket.io";
+
+let connections = {};
+let messages = {};
 let timeOnline = {};
-const connectToSocket = (server) => {
-  const io = new Server(server); // create Socket.IO server using your HTTP server
+
+export const connectToSocket = (server) => {
+  const io = new Server(server, {
+    cors: {
+      origin: "*",
+      methods: ["GET", "POST"],
+      allowedHeaders: ["*"],
+      credentials: true,
+    },
+  });
+
   io.on("connection", (socket) => {
-    // connection
+    console.log("SOMETHING CONNECTED");
+
     socket.on("join-call", (path) => {
-      //Typically you’d use this to join a room (Socket.IO concept) so you can broadcast to everyone in that call:
+      if (!path) {
+        console.log("join call called without path");
+        return;
+      }
+
       if (connections[path] === undefined) {
         connections[path] = [];
+        messages[path] =[];
       }
       connections[path].push(socket.id);
+
       timeOnline[socket.id] = new Date();
-    }); // first socket connected  client side listening -.on enter/join those emit is also accept-call
-    socket.on("signal", (told, message) => {
-      io.to(told).emit("signal".socket.id, message); //list of users present in rooms
-      //   connections[path].forEach(ele => {
-      //     io.to(ele)
-      //   })
-      for (let a = 0; a < connections[path].length; i++) {
+
+      // connections[path].forEach(elem => {
+      //     io.to(elem)
+      // })
+
+      for (let a = 0; a < connections[path].length; a++) {
         io.to(connections[path][a]).emit(
-          "user joined",
+          "user-joined",
           socket.id,
           connections[path]
-        ); // who is sender and who is receiver
+        );
       }
-      if (messages[path] === undefined) {
-        for (let a = 0; a < connections[path].length; ++a) {
-          io.to(socket.id).emit(      //io -The main Socket.IO server instance. Used to send data.
+
+      if (messages[path] !== undefined) {
+        for (let a = 0; a < messages[path].length; ++a) {
+          io.to(socket.id).emit(
             "chat-message",
-            // These 3 things are sent to show old chat history to the newly joined user.
             messages[path][a]["data"],
             messages[path][a]["sender"],
             messages[path][a]["socket-id-sender"]
@@ -40,13 +55,68 @@ const connectToSocket = (server) => {
       }
     });
 
-    socket.on("chat-message", (data, sender) => {
-      //Usually you’d broadcast this to a room (or to others in the room).
+    socket.on("signal", (toId, message) => {
+      io.to(toId).emit("signal", socket.id, message);
     });
-    socket.on("disconnect", () => {});
-  }); // same as event listeners
+
+    socket.on("chat-message", (data, sender) => {
+      const [matchingRoom, found] = Object.entries(connections).reduce(
+        ([room, isFound], [roomKey, roomValue]) => {
+          if (!isFound && roomValue.includes(socket.id)) {
+            return [roomKey, true];
+          }
+
+          return [room, isFound];
+        },
+        ["", false]
+      );
+
+      if (found === true) {
+        if (messages[matchingRoom] === undefined) {
+          messages[matchingRoom] = [];
+        }
+
+        messages[matchingRoom].push({
+          sender: sender,
+          data: data,
+          "socket-id-sender": socket.id,
+        });
+        console.log("message", matchingRoom, ":", sender, data);
+
+        connections[matchingRoom].forEach((elem) => {
+          io.to(elem).emit("chat-message", data, sender, socket.id);
+        });
+      }
+    });
+
+    socket.on("disconnect", () => {
+      var diffTime = Math.abs(timeOnline[socket.id] - new Date());
+
+      var key;
+
+      for (const [k, v] of JSON.parse(
+        JSON.stringify(Object.entries(connections))
+      )) {
+        for (let a = 0; a < v.length; ++a) {
+          if (v[a] === socket.id) {
+            key = k;
+
+            for (let a = 0; a < connections[key].length; ++a) {
+              io.to(connections[key][a]).emit("user-left", socket.id);
+            }
+
+            var index = connections[key].indexOf(socket.id);
+
+            connections[key].splice(index, 1);
+
+            if (connections[key].length === 0) {
+              delete connections[key];
+            }
+          }
+        }
+      }
+    });
+  });
 
   return io;
 };
-
-module.exports = { connectToSocket };
