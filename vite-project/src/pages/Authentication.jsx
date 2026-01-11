@@ -39,7 +39,7 @@ export default function Authentication() {
                 setPassword("");
                 setName("");
             }
-        } catch (err) {
+        }catch (err) {
             setError(err?.response?.data?.message || "Something went wrong");
         }
     };
@@ -66,7 +66,7 @@ export default function Authentication() {
     square
 >
 
-                    <Box
+                  <Box
                         sx={{
                             my: 8,
                             mx: 4,
