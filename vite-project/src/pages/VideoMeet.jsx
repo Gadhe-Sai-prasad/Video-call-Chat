@@ -12,7 +12,6 @@ import ScreenShareIcon from '@mui/icons-material/ScreenShare';
 import StopScreenShareIcon from '@mui/icons-material/StopScreenShare'
 import ChatIcon from '@mui/icons-material/Chat'
 
-
 const server = "http://localhost:8000"
 
 const server_url = server ;
@@ -59,12 +58,6 @@ export default function VideoMeetComponent() {
     const videoRef = useRef([])
 
     let [videos, setVideos] = useState([])
-
-    // TODO
-    // if(isChrome() === false) {
-
-
-    // }
 
     useEffect(() => {
         console.log("HELLO")
@@ -139,9 +132,6 @@ export default function VideoMeetComponent() {
 
     }
 
-
-
-
     let getUserMediaSuccess = (stream) => {
         try {
             window.localStream.getTracks().forEach(track => track.stop())
@@ -205,10 +195,6 @@ export default function VideoMeetComponent() {
             } catch (e) { }
         }
     }
-
-
-
-
 
     let getDislayMediaSuccess = (stream) => {
         console.log("HERE")
@@ -301,8 +287,8 @@ export default function VideoMeetComponent() {
                         }
                     }
 
-                    // Wait for their video stream
-                    connections[socketListId].onaddstream = (event) => {
+                    
+                    connections[socketListId].onaddstream = (event) => {                  // Wait for other peers  video stream
                         console.log("BEFORE:", videoRef.current);
                         console.log("FINDING ID: ", socketListId);
 
@@ -311,9 +297,9 @@ export default function VideoMeetComponent() {
                         if (videoExists) {
                             console.log("FOUND EXISTING");
 
-                            // Update the stream of the existing video
+                            
                             setVideos(videos => {
-                                const updatedVideos = videos.map(video =>
+                                const updatedVideos = videos.map(video =>     //// Update the stream
                                     video.socketId === socketListId ? { ...video, stream: event.stream } : video
                                 );
                                 videoRef.current = updatedVideos;
@@ -337,9 +323,8 @@ export default function VideoMeetComponent() {
                         }
                     };
 
-
-                    // Add the local video stream
-                    if (window.localStream !== undefined && window.localStream !== null) {
+                 
+                    if (window.localStream !== undefined && window.localStream !== null) {       //// Adding local video stream
                         connections[socketListId].addStream(window.localStream)
                     } else {
                         let blackSilence = (...args) => new MediaStream([black(...args), silence()])
@@ -386,11 +371,11 @@ export default function VideoMeetComponent() {
 
     let handleVideo = () => {
         setVideo(!video);
-        // getUserMedia();
+                                                    // getUserMedia();
     }
     let handleAudio = () => {
         setAudio(!audio)
-        // getUserMedia();
+                                           // getUserMedia();
     }
 
     useEffect(() => {
@@ -438,7 +423,7 @@ export default function VideoMeetComponent() {
         socketRef.current.emit('chat-message', message, username)
         setMessage("");
 
-        // this.setState({ message: "", sender: username })
+                                                                 // this.setState({ message: "", sender: username })
     }
 
     
@@ -548,7 +533,6 @@ export default function VideoMeetComponent() {
                     </div>
 
                 </div>
-
             }
 
         </div>
