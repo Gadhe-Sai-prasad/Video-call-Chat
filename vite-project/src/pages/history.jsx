@@ -5,17 +5,16 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import HomeIcon from '@mui/icons-material/Home';
-
 import { IconButton } from '@mui/material';
+
+
 export default function History() {
-
-
     const { getHistoryOfUser } = useContext(AuthContext);
 
     const [meetings, setMeetings] = useState([])
 
 
-    const routeTo = useNavigate();
+    const navigate  = useNavigate();
 
     useEffect(() => {
         const fetchHistory = async () => {
@@ -28,9 +27,9 @@ export default function History() {
         }
 
         fetchHistory();
-    }, [])
+    }, [getHistoryOfUser]);
 
-    let formatDate = (dateString) => {
+    const  formatDate = (dateString) => {
 
         const date = new Date(dateString);
         const day = date.getDate().toString().padStart(2, "0");
@@ -45,15 +44,15 @@ export default function History() {
         <div>
 
             <IconButton onClick={() => {
-                routeTo("/home")
+                navigate("/home")
             }}>
                 <HomeIcon />
             </IconButton >
             {
-                (meetings.length !== 0) ? meetings.map((e, i) => {
+                (meetings.length > 0) ? meetings.map((meeting) => {
                     return (
 
-                        <>
+                        
 
 
                             <Card key={i} variant="outlined">
@@ -61,7 +60,7 @@ export default function History() {
 
                                 <CardContent>
                                     <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
-                                        Code: {e.meetingCode}
+                                        Code: {meeting.meetingCode}
                                     </Typography>
 
                                     <Typography sx={{ mb: 1.5 }} color="text.secondary">
@@ -74,12 +73,14 @@ export default function History() {
                             </Card>
 
 
-                        </>
+                        
                     )
-                }) : <></>
+                }) : ( <Typography color="text.secondary">
+                    No meeting history available.
+                </Typography>) 
 
             }
 
         </div>
-    )
+    );
 }
